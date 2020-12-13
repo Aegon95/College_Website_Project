@@ -1,13 +1,11 @@
-﻿using System;
-
-namespace HIT.DTO
+﻿namespace HIT.DTO
 {
     public class SemesterDTO
     {
-
-        public string Id { get; private set; }
+        public string Id { get; set; }
         public string Name { get; set; }
 
         public string Description { get; set; }
     }
+    
 }

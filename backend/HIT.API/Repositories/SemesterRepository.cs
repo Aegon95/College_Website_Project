@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using HIT.Context.Interfaces;
 using HIT.Entities;
 using HIT.Repositories.Interfaces;
+using MongoDB.Bson;
 using MongoDB.Driver;
 
 namespace HIT.Repositories
@@ -17,7 +18,7 @@ namespace HIT.Repositories
             _context = semesterContext ?? throw new ArgumentNullException(nameof(semesterContext));
         }
 
-        public async Task<IEnumerable<Semester>> GetSemesters()
+        public async Task<IEnumerable<Semester>> GetAllSemesters()
         {
             return await _context
                 .Semesters
@@ -48,7 +49,7 @@ namespace HIT.Repositories
         {
             semester.CreatedOnUTC = DateTime.UtcNow;
             semester.createdBy = "root@gmail.com";
-            semester.Id = MongoDB.Bson.ObjectId.GenerateNewId().ToString();
+            semester.Id = ObjectId.GenerateNewId().ToString();
             await _context.Semesters.InsertOneAsync(semester);
             return semester;
         }

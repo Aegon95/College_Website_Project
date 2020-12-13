@@ -1,11 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using HIT.DTO;
-using HIT.Entities;
-using HIT.Repositories.Interfaces;
-using Mapster;
+using HIT.Features.Semesters.Commands;
+using HIT.Features.Semesters.Queries;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace HIT.Controllers
 {
@@ -13,49 +14,49 @@ namespace HIT.Controllers
     [Route("api/v1/semesters")]
     public class SemesterController : ControllerBase
     {
-        private readonly ISemesterRepository _semesterRepository;
-
-        public SemesterController(ISemesterRepository repository)
+        public SemesterController(ILogger<SemesterController> logger)
         {
-            _semesterRepository = repository;
+            _logger = logger;
         }
+        
+        private IMediator _mediator;
+
+        private readonly ILogger<SemesterController> _logger;
+        protected IMediator Mediator => _mediator ??= HttpContext.RequestServices.GetService<IMediator>();
+
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<SemesterDTO>>> GetSemesters()
         {
-            var semesterList = await _semesterRepository.GetSemesters();
-            return Ok(semesterList.Adapt<SemesterDTO[]>());
+            _logger.LogInformation("entering get all semesters");
+            return Ok(await Mediator.Send(new GetAllSemestersQuery()));
         }
 
         [HttpGet("{id:length(24)}", Name = "GetSemester")]
-        public async Task<ActionResult<SemesterDTO>> GetSemester(string id)
+        public async Task<ActionResult> GetSemester(string id)
         {
-            var semester = await _semesterRepository.GetSemester(id);
-            if (semester == null)
-                return NotFound();
-            return Ok(semester.Adapt<SemesterDTO>());
+            return Ok(await Mediator.Send(new GetSemesterByIdQuery {Id = id}));
         }
 
 
         [HttpPost]
-        public async Task<ActionResult> CreateSemester([FromBody] SemesterDTO semester)
+        public async Task<ActionResult> CreateSemester([FromBody] CreateSemesterCommand command)
         {
-            var semesterModel = semester.Adapt<Semester>();
-            var semModel = await _semesterRepository.CreateSemester(semesterModel);
-            return CreatedAtRoute("GetSemester", new {id = semModel.Id}, semModel.Adapt<SemesterDTO>());
+            var semester = await Mediator.Send(command);
+            return CreatedAtRoute("GetSemester", new {semester.Id}, semester);
         }
 
-        [HttpPut]
-        public async Task<ActionResult> UpdateSemester([FromBody] SemesterDTO semester)
+        [HttpPut("{id:length(24)}")]
+        public async Task<ActionResult> UpdateSemester(string id, [FromBody] UpdateSemesterCommand command)
         {
-            var semesterModel = semester.Adapt<Semester>();
-            return Ok(await _semesterRepository.UpdateSemester(semesterModel));
+            if (id != command.Id) return BadRequest();
+            return Ok(await Mediator.Send(command));
         }
 
         [HttpDelete("{id:length(24)}")]
         public async Task<ActionResult> DeleteSemester(string id)
         {
-            return Ok(await _semesterRepository.DeleteSemester(id));
+            return Ok(await Mediator.Send(new DeleteSemesterCommand {Id = id}));
         }
     }
 }

@@ -6,7 +6,7 @@ namespace HIT.Repositories.Interfaces
 {
     public interface ISemesterRepository
     {
-        Task<IEnumerable<Semester>> GetSemesters();
+        Task<IEnumerable<Semester>> GetAllSemesters();
         Task<Semester> GetSemester(string id);
         Task<IEnumerable<Semester>> GetSemesterByName(string name);
         Task<Semester> CreateSemester(Semester product);

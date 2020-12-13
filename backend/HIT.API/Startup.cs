@@ -1,8 +1,11 @@
+using System.Reflection;
+using FluentValidation.AspNetCore;
 using HIT.Context;
 using HIT.Context.Interfaces;
 using HIT.Repositories;
 using HIT.Repositories.Interfaces;
 using HIT.Settings;
+using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -25,7 +28,12 @@ namespace HIT
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllers();
+            services.AddCors();
+            services.AddControllers().AddFluentValidation(s =>
+            {
+                s.RegisterValidatorsFromAssemblyContaining<Startup>();
+                s.RunDefaultMvcValidationAfterFluentValidationExecutes = false;
+            });
 
 
             services.Configure<SemesterDatabaseSettings>(Configuration.GetSection(nameof(SemesterDatabaseSettings)));
@@ -36,6 +44,7 @@ namespace HIT
 
             services.AddTransient<ISemesterContext, SemesterContext>();
             services.AddTransient<ISemesterRepository, SemesterRepository>();
+            services.AddMediatR(Assembly.GetExecutingAssembly());
 
             services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new OpenApiInfo {Title = "HIT.API", Version = "v1"}); });
         }
@@ -53,6 +62,12 @@ namespace HIT
             app.UseHttpsRedirection();
 
             app.UseRouting();
+            
+            app.UseCors(x => x
+                .AllowAnyOrigin()
+                .AllowAnyMethod()
+                .AllowAnyHeader());
+            
 
             app.UseAuthorization();
 
