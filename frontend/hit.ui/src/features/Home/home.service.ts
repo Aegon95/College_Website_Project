@@ -1,26 +1,28 @@
 import http from "../../utils/axios";
+import {Semester} from "../../Models/Semester";
 
 class SemesterDataService {
-    getAll() {
-        return http.get("/semesters").then(response => {
-            return response.data
-        }).then(data=> data);
+    async getAll() : Promise<Semester []> {
+        const response = await http.get("/semesters")
+        return response.data;
     }
 
     get(id:string){
         return http.get(`/semesters/${id}`);
     }
 
-    create(data:object) {
-        return http.post("/semesters", data);
+    async create(data:Semester) : Promise<Semester> {
+        const response = await http.post("/semesters", data);
+        return response.data;
     }
 
-    update(id: string, data: object) {
-        return http.put(`/semesters/${id}`, data);
+    update(data: Semester) : Promise<Semester> {
+        return http.put(`/semesters/${data.id}`, data);
     }
 
-    delete(id: string) {
-        return http.delete(`/semesters/${id}`);
+    async delete(id: string) : Promise<void> {
+        const response = await http.delete(`/semesters/${id}`);
+        return response.data;
     }
 
 
