@@ -1,0 +1,32 @@
+version: "3.8"
+services:
+    db:
+      image: mongo
+      ports:
+          - '27017:27017'
+      restart: always
+      volumes:
+          - mongodb:/data/db
+          - mongodb_config:/data/configdb
+    backend:
+      build: ./backend/HIT.API
+      container_name: backend
+      ports: 
+          - '5000'
+      restart: always
+      depends_on: 
+        - db
+    frontend:
+      build: ./frontend/hit.ui
+      container_name: frontend
+      ports: 
+        - '80:80'
+      restart: always
+      environment: 
+        - ASPNETCORE_ENVIRONMENT=Docker
+      depends_on: 
+        - backend
+volumes:
+  mongodb:
+  mongodb_config:
+

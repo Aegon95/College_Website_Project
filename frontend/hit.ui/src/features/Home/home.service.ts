@@ -1,8 +1,10 @@
 import http from "../../utils/axios";
 import {Semester} from "../../Models/Semester";
+import {BASEURL} from "../../utils/constants";
 
 class SemesterDataService {
     async getAll() : Promise<Semester []> {
+        console.log(BASEURL)
         const response = await http.get("/semesters")
         return response.data;
     }

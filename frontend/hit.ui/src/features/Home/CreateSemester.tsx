@@ -9,6 +9,7 @@ interface CreateSemesterComponentProps {
     description: string
     handleSubmit: Function
     isEdit: boolean
+    setIsEdit: Function
     handleEdit: Function
 }
 
@@ -62,7 +63,10 @@ export const CreateSemester : React.FC<CreateSemesterComponentProps> = (props) =
                                         className="text-red-500 background-transparent font-bold uppercase px-6 py-2 text-sm outline-none focus:outline-none mr-1 mb-1"
                                         type="button"
                                         style={{ transition: "all .15s ease" }}
-                                        onClick={() => props.setShowModal(false)}
+                                        onClick={() => {
+                                            props.setShowModal(false)
+                                            props.setIsEdit(false)
+                                        }}
                                     >
                                         Close
                                     </button>
