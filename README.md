@@ -3,13 +3,13 @@ learning
 
 **build using** :
 
--.net 5 api
+- .net 5 api
 
--mongodb
+- mongodb
 
--react js with typescript
+- react js with typescript
 
--tailwind css
+- tailwind css
 
 - Docker
 
