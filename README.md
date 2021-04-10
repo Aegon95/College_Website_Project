@@ -10,3 +10,14 @@ learning
 -react js with typescript
 
 -tailwind css
+
+- Docker
+
+
+**TODO:**
+
+- add more features in UI
+
+- deploy using kubernetes
+
+- add Authentication & Authorization
