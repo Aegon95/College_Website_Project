@@ -1,21 +1,19 @@
 using System.Reflection;
 using FluentValidation.AspNetCore;
-using HIT.Context;
-using HIT.Context.Interfaces;
-using HIT.Repositories;
-using HIT.Repositories.Interfaces;
-using HIT.Settings;
+using HIT.Persistence.Context;
+using HIT.Persistence.Repositories;
+using HIT.Persistence.Repositories.Interfaces;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 
-namespace HIT
+namespace HIT.API
 {
     public class Startup
     {
@@ -40,13 +38,11 @@ namespace HIT
                 options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
             });
 
-            services.Configure<SemesterDatabaseSettings>(Configuration.GetSection(nameof(SemesterDatabaseSettings)));
-
-            services.AddSingleton<ISemesterDatabaseSettings>(sp =>
-                sp.GetRequiredService<IOptions<SemesterDatabaseSettings>>().Value);
+            services.AddDbContext<CollegeContext>(p =>
+                p.UseNpgsql(Configuration.GetConnectionString("DefaultConnection")));
 
 
-            services.AddTransient<ISemesterContext, SemesterContext>();
+            //services.AddTransient<ISemesterContext, SemesterContext>();
             services.AddTransient<ISemesterRepository, SemesterRepository>();
             services.AddMediatR(Assembly.GetExecutingAssembly());
 
@@ -54,8 +50,10 @@ namespace HIT
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, CollegeContext context)
         {
+            context.Database.EnsureCreated();
+            context.Database.Migrate();
             app.UseForwardedHeaders();
             if (env.IsDevelopment())
             {

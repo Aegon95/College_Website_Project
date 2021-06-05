@@ -1,20 +1,20 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 using FluentValidation;
-using HIT.DTO;
-using HIT.Entities;
-using HIT.Repositories.Interfaces;
+using HIT.API.DTO;
+using HIT.Entities.Entities;
+using HIT.Persistence.Repositories.Interfaces;
 using Mapster;
 using MediatR;
 
-namespace HIT.Features.Semesters.Commands
+namespace HIT.API.Features.Semesters.Commands
 {
     public class CreateSemesterCommand : IRequest<SemesterDTO>
     {
         public string Name { get; set; }
         public string Description { get; set; }
 
-        public class CreateSemesterCommandHandler : IRequestHandler<CreateSemesterCommand, SemesterDTO>
+        public class CreateSemesterCommandHandler : IRequestHandler<CreateSemesterCommand,SemesterDTO>
         {
             private readonly ISemesterRepository _repository;
 
@@ -31,7 +31,7 @@ namespace HIT.Features.Semesters.Commands
             }
         }
     }
-    
+
     public class CreateSemesterCommandValidator : AbstractValidator<CreateSemesterCommand>
     {
         public CreateSemesterCommandValidator()

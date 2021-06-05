@@ -1,16 +1,17 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using FluentValidation;
-using HIT.Repositories.Interfaces;
+using HIT.Persistence.Repositories.Interfaces;
 using MediatR;
 
-namespace HIT.Features.Semesters.Commands
+namespace HIT.API.Features.Semesters.Commands
 {
-    public class DeleteSemesterCommand : IRequest<bool>
+    public class DeleteSemesterCommand : IRequest
     {
-        public string Id { get; set; }
+        public Guid Id { get; set; }
 
-        public class DeleteSemesterCommandHandler : IRequestHandler<DeleteSemesterCommand, bool>
+        public class DeleteSemesterCommandHandler : IRequestHandler<DeleteSemesterCommand>
         {
             private readonly ISemesterRepository _repository;
 
@@ -19,13 +20,15 @@ namespace HIT.Features.Semesters.Commands
                 _repository = repository;
             }
 
-            public async Task<bool> Handle(DeleteSemesterCommand command, CancellationToken cancellationToken)
+            public async Task<Unit> Handle(DeleteSemesterCommand command, CancellationToken cancellationToken)
             {
-                return await _repository.DeleteSemester(command.Id);
+                var semester = await _repository.GetSemester(command.Id);
+                await _repository.DeleteSemester(semester);
+                return Unit.Value;
             }
         }
     }
-    
+
     public class DeleteSemesterCommandValidator : AbstractValidator<DeleteSemesterCommand>
     {
         public DeleteSemesterCommandValidator()

@@ -1,14 +1,15 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
-using HIT.DTO;
-using HIT.Features.Semesters.Commands;
-using HIT.Features.Semesters.Queries;
+using HIT.API.DTO;
+using HIT.API.Features.Semesters.Commands;
+using HIT.API.Features.Semesters.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-namespace HIT.Controllers
+namespace HIT.API.Controllers
 {
     [ApiController]
     [Route("api/v1/semesters")]
@@ -32,8 +33,8 @@ namespace HIT.Controllers
             return Ok(await Mediator.Send(new GetAllSemestersQuery()));
         }
 
-        [HttpGet("{id:length(24)}", Name = "GetSemester")]
-        public async Task<ActionResult> GetSemester(string id)
+        [HttpGet("{id:guid}", Name = nameof(GetSemester))]
+        public async Task<ActionResult> GetSemester(Guid id)
         {
             return Ok(await Mediator.Send(new GetSemesterByIdQuery {Id = id}));
         }
@@ -43,18 +44,18 @@ namespace HIT.Controllers
         public async Task<ActionResult> CreateSemester([FromBody] CreateSemesterCommand command)
         {
             var semester = await Mediator.Send(command);
-            return CreatedAtRoute("GetSemester", new {semester.Id}, semester);
+            return CreatedAtRoute(nameof(GetSemester), new {id = semester.Id.ToString()}, semester);
         }
 
-        [HttpPut("{id:length(24)}")]
-        public async Task<ActionResult> UpdateSemester(string id, [FromBody] UpdateSemesterCommand command)
+        [HttpPut("{id:guid}")]
+        public async Task<ActionResult> UpdateSemester(Guid id, [FromBody] UpdateSemesterCommand command)
         {
             if (id != command.Id) return BadRequest();
             return Ok(await Mediator.Send(command));
         }
 
-        [HttpDelete("{id:length(24)}")]
-        public async Task<ActionResult> DeleteSemester(string id)
+        [HttpDelete("{id:guid}")]
+        public async Task<ActionResult> DeleteSemester(Guid id)
         {
             return Ok(await Mediator.Send(new DeleteSemesterCommand {Id = id}));
         }

@@ -1,73 +1,68 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
-using HIT.Persistence.Context.Interfaces;
-using HIT.Persistence.Entities;
+using HIT.Entities.Entities;
+using HIT.Persistence.Context;
 using HIT.Persistence.Repositories.Interfaces;
-using MongoDB.Driver;
+using Microsoft.EntityFrameworkCore;
 
 namespace HIT.Persistence.Repositories
 {
     public class SemesterRepository : ISemesterRepository
     {
-        private readonly ISemesterContext _context;
+        private readonly CollegeContext _context;
 
-        public SemesterRepository(ISemesterContext semesterContext)
+        public SemesterRepository(CollegeContext context)
         {
-            _context = semesterContext ?? throw new ArgumentNullException(nameof(semesterContext));
+            _context = context;
         }
 
-        public async Task<IEnumerable<Semester>> GetSemesters()
+        public async Task<IEnumerable<Semester>> GetAllSemesters()
         {
             return await _context
                 .Semesters
-                .Find(p => true)
                 .ToListAsync();
         }
 
-        public async Task<Semester> GetSemester(string id)
+        public async Task<Semester> GetSemester(Guid id)
         {
             return await _context
                 .Semesters
-                .Find(p => p.Id == id)
+                .Where(p => p.Id == id)
                 .FirstOrDefaultAsync();
         }
 
         public async Task<IEnumerable<Semester>> GetSemesterByName(string name)
         {
-            var filter = Builders<Semester>.Filter.ElemMatch(p => p.Name, name);
 
             return await _context
                 .Semesters
-                .Find(filter)
+                .Where(s => s.Name == name)
                 .ToListAsync();
         }
 
 
-        public async Task Create(Semester semester)
+        public async Task<Semester> CreateSemester(Semester semester)
         {
-            await _context.Semesters.InsertOneAsync(semester);
+            await _context.Semesters.AddAsync(semester);
+            await _context.SaveChangesAsync();
+            return semester;
         }
 
-        public async Task<bool> Update(Semester semester)
+        public async Task<Semester> UpdateSemester(Semester semester)
         {
-            var updateResult = await _context
-                .Semesters
-                .ReplaceOneAsync(g => g.Id == semester.Id, semester);
-
-            return updateResult.IsAcknowledged
-                   && updateResult.ModifiedCount > 0;
+            await _context.SaveChangesAsync();
+            return semester;
         }
 
-        public async Task<bool> Delete(string id)
+        public async Task DeleteSemester(Semester semester)
         {
-            var filter = Builders<Semester>.Filter.Eq(semester => semester.Id, id);
-            var deleteResult = await _context
+            _context
                 .Semesters
-                .DeleteOneAsync(filter);
-
-            return deleteResult.IsAcknowledged
-                   && deleteResult.DeletedCount > 0;
+                .Remove(semester);
+            await _context.SaveChangesAsync();
+            
         }
     }
 }

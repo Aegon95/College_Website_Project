@@ -1,20 +1,19 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using FluentValidation;
-using HIT.Entities;
-using HIT.Repositories.Interfaces;
-using Mapster;
+using HIT.Persistence.Repositories.Interfaces;
 using MediatR;
 
-namespace HIT.Features.Semesters.Commands
+namespace HIT.API.Features.Semesters.Commands
 {
-    public class UpdateSemesterCommand : IRequest<bool>
+    public class UpdateSemesterCommand : IRequest
     {
-        public string Id { get; set; }
+        public Guid Id { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
-        
-        public class UpdateSemesterCommandHandler : IRequestHandler<UpdateSemesterCommand, bool>
+
+        public class UpdateSemesterCommandHandler : IRequestHandler<UpdateSemesterCommand>
         {
             private readonly ISemesterRepository _repository;
 
@@ -23,14 +22,17 @@ namespace HIT.Features.Semesters.Commands
                 _repository = repository;
             }
 
-            public async Task<bool> Handle(UpdateSemesterCommand command, CancellationToken cancellationToken)
+            public async Task<Unit> Handle(UpdateSemesterCommand command, CancellationToken cancellationToken)
             {
-                var semester = command.Adapt<Semester>();
-                return await _repository.UpdateSemester(semester);
+                var semester = await _repository.GetSemester(command.Id);
+                semester.Name = command.Name;
+                semester.Description = command.Description;
+                await _repository.UpdateSemester(semester);
+                return Unit.Value;
             }
         }
     }
-    
+
     public class UpdateSemesterCommandValidator : AbstractValidator<UpdateSemesterCommand>
     {
         public UpdateSemesterCommandValidator()

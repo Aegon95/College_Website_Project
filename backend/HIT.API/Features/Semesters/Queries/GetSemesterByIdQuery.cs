@@ -1,15 +1,16 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
-using HIT.DTO;
-using HIT.Repositories.Interfaces;
+using HIT.API.DTO;
+using HIT.Persistence.Repositories.Interfaces;
 using Mapster;
 using MediatR;
 
-namespace HIT.Features.Semesters.Queries
+namespace HIT.API.Features.Semesters.Queries
 {
     public class GetSemesterByIdQuery : IRequest<SemesterDTO>
     {
-        public string Id { get; set; }
+        public Guid Id { get; set; }
 
         public class GetProductByIdQueryHandler : IRequestHandler<GetSemesterByIdQuery, SemesterDTO>
         {

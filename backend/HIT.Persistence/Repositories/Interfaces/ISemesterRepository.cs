@@ -1,16 +1,17 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
-using HIT.Persistence.Entities;
+using HIT.Entities.Entities;
 
 namespace HIT.Persistence.Repositories.Interfaces
 {
     public interface ISemesterRepository
     {
-        Task<IEnumerable<Semester>> GetSemesters();
-        Task<Semester> GetSemester(string id);
+        Task<IEnumerable<Semester>> GetAllSemesters();
+        Task<Semester> GetSemester(Guid id);
         Task<IEnumerable<Semester>> GetSemesterByName(string name);
-        Task Create(Semester product);
-        Task<bool> Update(Semester product);
-        Task<bool> Delete(string id);
+        Task<Semester> CreateSemester(Semester semester);
+        Task<Semester> UpdateSemester(Semester product);
+        Task DeleteSemester(Semester semester);
     }
 }
